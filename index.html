@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Room Reservation System</title>
+    <style>
+:root {
+  --navy: #0f2e5c;
+  --blue: #2563eb;
+  --blue-dark: #1d4ed8;
+  --sky: #e0f0ff;
+  --sky-soft: #f2f8ff;
+  --text: #1e293b;
+  --muted: #64748b;
+  --border: #cfe0f5;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+  color: var(--text);
+  line-height: 1.45;
+  min-height: 100vh;
+  background: linear-gradient(160deg, #eaf4ff 0%, #d7eaff 45%, #f4f9ff 100%) fixed;
+}
+
+/* Top bar */
+.topbar {
+  background: linear-gradient(135deg, #7cb6ff 0%, #a5d0ff 50%, #c9e8ff 100%);
+  color: #0f2e5c;
+  padding: 18px 32px 14px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 10px;
+  box-shadow: 0 4px 16px rgba(37,99,235,.18);
+}
+.topbar h1 { font-size: 22px; margin: 0; font-weight: 700; letter-spacing: .4px; color: #0f2e5c; }
+.topbar nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
+.topbar nav a {
+  color: #0f2e5c; text-decoration: none; padding: 8px 18px; border-radius: 999px;
+  font-weight: 600; font-size: 14px; transition: background .2s, color .2s;
+}
+.topbar nav a:hover { background: rgba(255,255,255,.55); }
+.topbar nav a.active { background: #fff; color: #1d4ed8; box-shadow: 0 2px 8px rgba(37,99,235,.2); }
+
+/* Layout */
+.container { max-width: 1100px; margin: 30px auto; padding: 0 16px; }
+.card {
+  background: rgba(255,255,255,.92);
+  border: 1px solid #e3eefb;
+  border-radius: 16px;
+  padding: 26px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 24px rgba(37,99,235,.10);
+}
+h2 {
+  margin: 0 0 20px; font-size: 20px; color: var(--navy);
+  padding-bottom: 10px; border-bottom: 2px solid var(--sky);
+}
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+
+/* Forms */
+label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #334155; }
+input, select, textarea {
+  width: 100%; height: 42px; padding: 0 12px;
+  border: 1px solid var(--border); border-radius: 10px;
+  font-size: 14px; font-family: inherit; background: var(--sky-soft); color: var(--text);
+  transition: border-color .15s, box-shadow .15s, background .15s;
+}
+textarea { height: auto; padding: 10px 12px; }
+input:focus, select:focus, textarea:focus {
+  outline: none; background: #fff; border-color: var(--blue);
+  box-shadow: 0 0 0 4px rgba(37,99,235,.15);
+}
+form.search { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; align-items: flex-end; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 42px; padding: 0 20px; border: 0; border-radius: 10px;
+  background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+  color: #fff; text-decoration: none; cursor: pointer;
+  font-size: 14px; font-weight: 600; font-family: inherit; white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(37,99,235,.28);
+  transition: transform .12s, box-shadow .15s, filter .15s;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(37,99,235,.35); filter: brightness(1.05); }
+.btn:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(37,99,235,.3); }
+.btn:focus-visible { outline: 3px solid rgba(37,99,235,.4); outline-offset: 2px; }
+.btn.gray  { background: linear-gradient(135deg, #64748b, #94a3b8); box-shadow: 0 4px 12px rgba(100,116,139,.28); }
+.btn.red   { background: linear-gradient(135deg, #dc2626, #f87171); box-shadow: 0 4px 12px rgba(220,38,38,.28); }
+.btn.green { background: linear-gradient(135deg, #0d9488, #34d399); box-shadow: 0 4px 12px rgba(13,148,136,.28); }
+.btn.small { height: 30px; padding: 0 13px; font-size: 12px; border-radius: 8px; box-shadow: none; }
+.btn.small:hover { box-shadow: 0 4px 10px rgba(37,99,235,.3); }
+
+/* Tables */
+.table-wrap { overflow-x: auto; border: 1px solid #dbe9fb; border-radius: 12px; background: #fff; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 13px 15px; border-bottom: 1px solid #eaf1fb; text-align: left; font-size: 14px; vertical-align: middle; }
+th {
+  background: linear-gradient(180deg, #e8f3ff, #d9ebff);
+  color: var(--navy); font-size: 12px; text-transform: uppercase; letter-spacing: .6px;
+}
+tr:last-child td { border-bottom: 0; }
+tr:hover td { background: #f3f9ff; }
+td:last-child { white-space: nowrap; }
+td form { display: inline-block; margin: 0; }
+
+/* Messages and badges */
+.alert { padding: 14px 18px; border-radius: 12px; margin-bottom: 20px; font-weight: 600; border-left: 6px solid; box-shadow: 0 4px 12px rgba(0,0,0,.06); }
+.alert.success { background: #e6faf0; color: #166534; border-color: #22c55e; }
+.alert.error   { background: #fdecec; color: #991b1b; border-color: #ef4444; }
+.alert.warning { background: #fff6dd; color: #92400e; border-color: #f59e0b; }
+.badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.Available, .Approved { background: #d9f7e6; color: #166534; }
+.Pending, .Under { background: #fff1c9; color: #92400e; }
+.Rejected, .Cancelled, .Inactive { background: #fde0e0; color: #991b1b; }
+
+/* Misc */
+.footer { text-align: center; color: var(--muted); padding: 24px; font-size: 13px; }
+.hint { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
+.back { margin-top: 12px; }
+@media (max-width: 600px) {
+  .topbar { padding: 14px 16px; }
+  .card { padding: 18px; }
+}
+  </style>
+</head>
+<body>
+<header class="topbar">
+  <h1 style="text-align: center;">Room Reservation System</h1>
+
+  <nav>
+    <a href="index.html" class="active">Home / Forms</a>
+    <a href="rooms.php">Rooms</a>
+    <a href="reservations.php">Reservations</a>
+  </nav>
+</header>
+
+<main class="container">
+
+  <!-- Add Room -->
+  <div class="card" id="add-room">
+    <h2>Add Room / Laboratory</h2>
+    <form method="post" action="room_add.php">
+      <div class="grid">
+        <div><label>Room/Laboratory Name</label><input name="room_name" required></div>
+        <div><label>Room Number</label><input name="room_number" required></div>
+        <div><label>Room Type</label>
+          <select name="room_type">
+            <option>Computer Laboratory</option>
+            <option>Science Laboratory</option>
+            <option selected>Classroom</option>
+            <option>Conference Room</option>
+            <option>Other</option>
+          </select></div>
+        <div><label>Building</label><input name="building" required></div>
+        <div><label>Room Capacity</label><input type="number" min="1" max="500" name="capacity" required></div>
+        <div><label>Availability Status</label>
+          <select name="status">
+            <option>Available</option>
+            <option>Under Maintenance</option>
+            <option>Inactive</option>
+          </select></div>
+      </div>
+      <p><button class="btn" type="submit">Save Room</button></p>
+    </form>
+  </div>
+
+  <!-- New Reservation -->
+  <div class="card" id="new-reservation">
+    <h2>New Reservation</h2>
+    <form method="post" action="reservation_add.php" id="resForm">
+      <div class="grid">
+        <div><label>Name of Requesting Teacher</label><input name="teacher_name" required></div>
+        <div><label>Department</label><input name="department" required></div>
+        <div><label>Room/Laboratory</label>
+          <select name="room_id" id="room_id" required><option value="">-- Select room --</option></select></div>
+        <div><label>Purpose of Reservation</label><input name="purpose" required></div>
+        <div><label>Reservation Date</label><input type="date" name="reservation_date" required></div>
+        <div><label>Start Time</label><input type="time" name="start_time" required></div>
+        <div><label>End Time</label><input type="time" name="end_time" required></div>
+        <div><label>Number of Participants</label><input type="number" min="1" name="participants" required></div>
+       
+      </div>
+      <p class="hint" id="roomHint" hidden>Could not load the rooms. Open this page through http://localhost/room_reservation/index.html and run setup.php first.</p>
+      <p><button class="btn green" type="submit">Reserve Room</button></p>
+    </form>
+  </div>
+
+  <!-- Search -->
+  <div class="grid">
+    <div class="card">
+      <h2>Search Rooms</h2>
+      <form method="get" action="rooms.php">
+        <label>Name, number, type, building or status</label>
+        <input type="text" name="q" placeholder="e.g. Computer Lab">
+        <p><button class="btn" type="submit">Search Rooms</button>
+           <a class="btn gray" href="rooms.php">View All Rooms</a></p>
+      </form>
+    </div>
+    <div class="card">
+      <h2>Search Reservations</h2>
+      <form method="get" action="reservations.php">
+        <label>Date</label><input type="date" name="date">
+        <label style="margin-top:8px">Room</label>
+        <select name="room_id" id="f_room"><option value="0">All rooms</option></select>
+        <label style="margin-top:8px">Teacher</label><input type="text" name="teacher" placeholder="Teacher name">
+        <p><button class="btn" type="submit">Search Reservations</button>
+           <a class="btn gray" href="reservations.php">View All</a></p>
+      </form>
+    </div>
+  </div>
+
+</main>
+<footer class="footer">Laboratory/Room Reservation System &middot; Yuan Miguel V. Mendoza of BSIT 3-AIML</footer>
+
+<script>
+  /* Fill the room dropdowns from the database (through room_options.php) */
+  fetch('room_options.php')
+    .then(function (r) { return r.json(); })
+    .then(function (rooms) {
+      var pick = document.getElementById('room_id');
+      var filter = document.getElementById('f_room');
+      rooms.forEach(function (r) {
+        var note = r.status !== 'Available' ? ', ' + r.status : '';
+        pick.add(new Option(r.room_name + ' (' + r.room_number + ', cap. ' + r.capacity + note + ')', r.room_id));
+        filter.add(new Option(r.room_name, r.room_id));
+      });
+    })
+    .catch(function () { document.getElementById('roomHint').hidden = false; });
+
+  /* Quick check before sending: end time must be later than start time */
+  document.getElementById('resForm').addEventListener('submit', function (e) {
+    var f = e.target;
+    if (f.end_time.value <= f.start_time.value) {
+      e.preventDefault();
+      alert('Invalid Schedule: The end time must be later than the start time.');
+    }
+  });
+</script>
+</body>
+</html>
